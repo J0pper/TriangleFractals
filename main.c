@@ -6,13 +6,15 @@
  
 int main(int argc, char *argv[])
 {
-    int depth = 4;
+    int depth = 0;
     Line start_line = { { 400, 400}, { 1200, 400 } };
     Line *line_array;
 
     int final_array_size;
     generate_fractal(start_line, depth, &line_array, &final_array_size);
     
+    printf("%p\n", &line_array[0].point1[0]);
+
     printf("Line ARRAY");
     print_lines(line_array, final_array_size);
 
@@ -35,7 +37,7 @@ int main(int argc, char *argv[])
  
     // triggers the program that controls
     // your graphics hardware and sets flags
-    Uint32 render_flags = SDL_RENDERER_ACCELERATED;
+    Uint32 render_flags = 0;
 
     // creates a renderer to render our images
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, render_flags);
