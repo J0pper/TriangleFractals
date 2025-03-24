@@ -3,26 +3,26 @@
 
 #include <stdio.h>
 
- 
+void init_fractal(Line **line_array, int *array_size, int depth, Line start_line)
+{
+    int arr_size = (int)pow(3, depth);
+
+    *line_array = (Line *)realloc(*line_array, sizeof(Line) * arr_size);
+    *line_array[0] = start_line;
+
+    generate_fractal(start_line, depth, *line_array, arr_size);
+
+    *array_size = arr_size;
+}
+
 int main(int argc, char *argv[])
 {
     int depth = 0;
-    Line start_line = { { 400, 400}, { 1200, 400 } };
-    Line *line_array;
-
-    int final_array_size;
-    generate_fractal(start_line, depth, &line_array, &final_array_size);
-    
-    printf("%p\n", &line_array[0].point1[0]);
-
-    printf("Line ARRAY");
-    print_lines(line_array, final_array_size);
-
-    Line copy_line_array[final_array_size];
-
-    memcpy(copy_line_array, line_array, sizeof(Line) * final_array_size);
-    print_lines(copy_line_array, final_array_size);
-
+    Line start_line = { { 400.f, 400.f}, { 1200.f, 400.f } };
+    int array_size;
+    int *ptr_array_size = &array_size;
+    Line *line_array = (Line *)malloc(sizeof(Line));
+    init_fractal(&line_array, ptr_array_size, depth, start_line);
 
     // returns zero on success else non-zero
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -44,19 +44,28 @@ int main(int argc, char *argv[])
 
     // controls animation loop
     int close = 0;
+    int depth_buffer = depth;
 
     // animation loop
     while (!close) {
+        if (depth_buffer != depth) {
+            depth = depth_buffer;
+            init_fractal(&line_array, ptr_array_size, depth, start_line);
+        };
+
         SDL_Event event;
  
         // Events management
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
- 
-            case SDL_QUIT:
-                // handling of close button
-                close = 1;
-                break;
+                case SDL_QUIT:
+                    // handling of close button
+                    close = 1;
+                    break;
+
+                case SDL_MOUSEWHEEL:
+                    depth_buffer += event.wheel.y;
+                    if (depth_buffer < 0) depth_buffer = 0;
             }
         }
 
@@ -65,17 +74,13 @@ int main(int argc, char *argv[])
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-        
-        //printf("Line ARRAY");
-        //print_lines(copy_line_array, final_array_size);
-
-        for (int i = 0; i < final_array_size; i++)
+        for (int i = 0; i < *ptr_array_size; i++)
         {
             SDL_RenderDrawLine(renderer,
-                               copy_line_array[i].point1[0],
-                               copy_line_array[i].point1[1],
-                               copy_line_array[i].point2[0],
-                               copy_line_array[i].point2[1]);
+                               line_array[i].point1[0],
+                               line_array[i].point1[1],
+                               line_array[i].point2[0],
+                               line_array[i].point2[1]);
         }
 
         SDL_RenderPresent(renderer);

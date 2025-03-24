@@ -5,11 +5,12 @@
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct Line
 {
-    int point1[2];
-    int point2[2];
+    float point1[2];
+    float point2[2];
 } Line;
 
 
@@ -19,7 +20,7 @@ float line_slope(Line line);
 void line_midpoint(Line line, float *midpoint);
 float perp_line_slope(float slope);
 float slope_to_deg_angle(float slope);
-void split_line(Line line, Line **new_lines);
-void generate_fractal(Line start_line, int depth, Line **line_array, int *final_array_size);
+void split_line(Line line, Line *new_lines, int working_header);
+void generate_fractal(Line start_line, int depth, Line *line_array, int final_array_size);
 
 #endif // !PATTERN_H
