@@ -12,7 +12,7 @@
     devShells."${system}".default =
     let
       pkgs = import nixpkgs { inherit system; };
-    in pkgs.mkShell.override { stdenv = pkgs.llvmPackages.stdenv; }
+    in pkgs.mkShell.override { stdenv = pkgs.llvmPackages_20.stdenv; }
     {
       nativeBuildInputs = with pkgs; [
         pkg-config
@@ -21,16 +21,20 @@
       buildInputs = with pkgs; [
         meson
         ninja
-        SDL2
-        glibc
-        cmake
-
+        (SDL2.overrideAttrs (
+          old: {
+            dontDisableStatic = true;
+            configureFlags = (old.configureFlags or []) ++ [ "--enable-static" "--disable-shared" ];
+          }
+        ))
         zsh
       ];
 
       shellHook = ''
         exec zsh
       '';
+
+      PKG_CONFIG_ALL_STATIC = "1";
     };
   };
 }
